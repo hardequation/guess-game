@@ -1,0 +1,155 @@
+:root{
+  --bg:#0A0A26; --bg2:#07071C; --panel:#12123A; --panel2:#1B1B4D;
+  --pink:#FF3EA5; --cyan:#23E5DB; --yellow:#FFD23F; --violet:#9B5CFF; --orange:#FF8A3D;
+  --text:#fff; --muted:#B8BBE0; --dim:#8C90B0; --good:#4BE36B; --bad:#FF5A5A;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg2);color:var(--text);font-family:Rubik,system-ui,-apple-system,'Segoe UI',sans-serif;overflow:hidden}
+button,input,select{font-family:inherit}
+#viewport{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+#stage{width:1600px;height:900px;position:relative;overflow:hidden;background:var(--bg);transform-origin:center center;flex:none}
+
+/* фон: прожекторы, шар, пол */
+@keyframes beamL{0%,100%{transform:rotate(-28deg)}50%{transform:rotate(-12deg)}}
+@keyframes beamR{0%,100%{transform:rotate(28deg)}50%{transform:rotate(12deg)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes flash{0%,100%{opacity:.35}50%{opacity:1}}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 3px var(--yellow),0 0 28px 6px rgba(255,210,63,.55)}50%{box-shadow:0 0 0 3px var(--yellow),0 0 48px 14px rgba(255,210,63,.8)}}
+@keyframes pop{0%{transform:scale(.4);opacity:0}70%{transform:scale(1.08);opacity:1}100%{transform:scale(1)}}
+@keyframes rise{from{transform:translateY(24px);opacity:0}to{transform:none;opacity:1}}
+.beam{position:absolute;top:-120px;width:240px;height:1100px;transform-origin:50% 0;clip-path:polygon(45% 0,55% 0,100% 100%,0 100%);pointer-events:none}
+.beam.l{left:180px;background:linear-gradient(180deg,rgba(255,62,165,.28),rgba(255,62,165,0) 80%);animation:beamL 7s ease-in-out infinite}
+.beam.r{right:180px;background:linear-gradient(180deg,rgba(35,229,219,.25),rgba(35,229,219,0) 80%);animation:beamR 8s ease-in-out infinite}
+.floor{position:absolute;left:0;right:0;bottom:0;height:60px;display:grid;grid-template-columns:repeat(20,1fr);gap:4px;padding:4px;background:#05051A;pointer-events:none}
+.floor div{border-radius:4px;animation:flash 1.6s ease-in-out infinite}
+.ball{width:84px;height:84px;border-radius:50%;background:radial-gradient(circle at 32% 30%,#fff 0 6%,rgba(255,255,255,0) 22%),repeating-linear-gradient(0deg,#B9BDD6 0 7px,#5D6182 7px 9px),repeating-linear-gradient(90deg,#E6E8F5 0 7px,#7A7E9E 7px 9px);background-blend-mode:screen,multiply,normal;box-shadow:0 0 40px 10px rgba(255,255,255,.25);animation:spin 9s linear infinite}
+
+.layer{position:absolute;inset:0;padding:24px 40px 76px;display:flex;flex-direction:column}
+
+/* типографика */
+.logo{font-family:'Russo One',sans-serif;letter-spacing:2px;background:linear-gradient(180deg,#fff 0%,#C9CCE0 45%,#6E7290 52%,#F2F3FA 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 3px 0 var(--pink))}
+.russo{font-family:'Russo One',sans-serif}
+.pix{font-family:'Press Start 2P',monospace}
+.muted{color:var(--muted)}
+h2{font-family:'Russo One',sans-serif;font-weight:400;margin:0 0 12px;font-size:30px}
+
+/* верхняя полоса */
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:16px;position:relative;z-index:2}
+.topbar .logo{font-size:36px}
+.badges{display:flex;gap:12px;align-items:center}
+.badge{padding:10px 16px;border:2px solid var(--cyan);border-radius:10px;font-size:17px;font-weight:600;white-space:nowrap}
+.badge .pix{font-size:14px;color:var(--yellow)}
+.badge.pink{border-color:var(--pink)}
+.badge.final{border-color:var(--yellow);background:var(--yellow);color:var(--bg);font-family:'Russo One',sans-serif}
+
+/* кнопки */
+.btn{border:none;border-radius:14px;padding:14px 26px;font-size:20px;font-weight:800;cursor:pointer;color:var(--bg);background:var(--yellow);box-shadow:0 5px 0 #B8901A;transition:transform .06s}
+.btn:active{transform:translateY(3px);box-shadow:0 2px 0 #B8901A}
+.btn.pink{background:var(--pink);color:#fff;box-shadow:0 5px 0 #A71E66}
+.btn.cyan{background:var(--cyan);box-shadow:0 5px 0 #138C86}
+.btn.ghost{background:transparent;color:#fff;border:2px solid var(--dim);box-shadow:none}
+.btn.small{padding:8px 14px;font-size:16px;border-radius:10px}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.iconbtn{width:46px;height:46px;border-radius:10px;border:2px solid var(--dim);background:transparent;color:#fff;font-size:20px;cursor:pointer}
+
+/* стол */
+.board{flex:1;display:grid;grid-template-columns:360px 1fr 360px;gap:28px;margin-top:20px;min-height:0;position:relative;z-index:1}
+.col{display:flex;flex-direction:column;gap:14px;min-height:0}
+.team{position:relative;background:var(--panel);border-radius:18px;padding:14px 16px;border:3px solid var(--c);box-shadow:0 0 18px color-mix(in srgb,var(--c) 35%,transparent)}
+.team.active{border-color:var(--yellow);animation:pulse 1.4s ease-in-out infinite}
+.team .head{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.team .name{display:flex;align-items:center;gap:10px;font-family:'Russo One',sans-serif;font-size:22px;min-width:0}
+.team .name span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dot{width:16px;height:16px;border-radius:4px;background:var(--c);box-shadow:0 0 10px var(--c);flex:none}
+.turn-tag{background:var(--yellow);color:var(--bg);font:800 12px Rubik;padding:4px 8px;border-radius:6px;font-family:Rubik}
+.score{font-family:'Press Start 2P',monospace;font-size:24px;color:var(--yellow);text-shadow:0 0 12px rgba(255,210,63,.6)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.chip{font-family:'Press Start 2P',monospace;font-size:12px;padding:8px 9px;border-radius:6px;color:var(--bg);background:var(--c)}
+.delta{position:absolute;right:14px;top:-14px;font-family:'Press Start 2P',monospace;font-size:16px;padding:6px 8px;border-radius:8px;background:var(--bg);animation:pop .5s}
+.delta.plus{color:var(--good)} .delta.minus{color:var(--bad)}
+
+.center{display:flex;flex-direction:column;align-items:center;gap:14px;min-height:0}
+.modtag{display:flex;align-items:center;gap:10px;background:var(--pink);padding:8px 18px;border-radius:12px;font-family:'Russo One',sans-serif;font-size:22px;box-shadow:0 0 24px rgba(255,62,165,.6)}
+.modtag.final{background:var(--yellow);color:var(--bg)}
+
+.card{width:100%;max-width:560px;background:var(--panel);border-radius:20px;overflow:hidden;border:3px solid var(--violet);box-shadow:0 0 34px rgba(155,92,255,.5)}
+.card .ch{background:var(--violet);padding:8px 20px;display:flex;justify-content:space-between;align-items:center;font-family:'Russo One',sans-serif;font-size:22px}
+.card.event{border-color:var(--cyan);box-shadow:0 0 34px rgba(35,229,219,.45)}
+.card.event .ch{background:var(--cyan);color:var(--bg)}
+.card .cb{padding:14px 24px 16px;display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center}
+.qr{background:#fff;padding:10px;border-radius:10px;line-height:0}
+.qr img,.qr svg{width:140px;height:140px}
+.evtext{font-family:'Russo One',sans-serif;font-size:32px;line-height:1.25;padding:10px 0}
+.bigyear{font-family:'Press Start 2P',monospace;font-size:46px;color:var(--yellow);text-shadow:0 0 18px rgba(255,210,63,.7)}
+#stage.enter .bigyear{animation:pop .5s}
+.songname{font-family:'Russo One',sans-serif;font-size:26px}
+
+/* панель ответа */
+.panel{width:100%;background:var(--panel2);border-radius:18px;padding:16px 20px;display:flex;flex-direction:column;gap:12px}
+#stage.enter .card,#stage.enter .panel,#stage.enter .comment{animation:rise .35s}
+.panel .title{font-family:'Russo One',sans-serif;font-size:20px}
+.tl{display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:center}
+.slot{min-width:38px;height:38px;border-radius:10px;border:2px dashed var(--dim);background:transparent;color:var(--dim);font-size:20px;font-weight:800;cursor:pointer}
+.slot:hover{border-color:#fff;color:#fff}
+.slot.sel{border-style:solid;border-color:var(--yellow);background:var(--yellow);color:var(--bg)}
+.slot.sel2{border-style:solid;border-color:var(--pink);background:var(--pink);color:#fff}
+.slot.ok{border-style:solid;border-color:var(--good);color:var(--good)}
+.slot:disabled{cursor:default;opacity:.35}
+.slot:disabled.sel,.slot:disabled.sel2,.slot:disabled.ok{opacity:1}
+.fields{display:flex;gap:10px}
+.fields label{flex:1;display:flex;flex-direction:column;gap:4px;font-size:14px;color:var(--muted)}
+input[type=text],input[type=number]{background:#0B0B2C;border:2px solid #3A3D74;border-radius:10px;color:#fff;padding:10px 12px;font-size:18px;width:100%}
+input:focus{outline:none;border-color:var(--cyan)}
+.row{display:flex;gap:12px;align-items:center;justify-content:center;flex-wrap:wrap}
+.verdict{display:flex;align-items:center;gap:10px;justify-content:space-between;background:#0B0B2C;border-radius:12px;padding:10px 14px}
+.verdict .what{text-align:left}
+.verdict .what small{display:block;color:var(--muted)}
+.vbtn{width:48px;height:42px;border-radius:10px;border:2px solid #3A3D74;background:transparent;font-size:20px;cursor:pointer}
+.vbtn.on.yes{background:var(--good);border-color:var(--good)}
+.vbtn.on.no{background:var(--bad);border-color:var(--bad)}
+.hint{font-size:13px;color:var(--yellow)}
+.lines{display:flex;flex-direction:column;gap:4px;font-size:17px;color:var(--muted)}
+.comment{background:#fff;color:var(--bg);border-radius:18px;padding:14px 22px;font-family:'Russo One',sans-serif;font-size:24px;position:relative;max-width:560px;text-align:center}
+.comment:after{content:'';position:absolute;left:40px;bottom:-14px;border:14px solid transparent;border-top-color:#fff;border-bottom:0}
+
+/* оверлей модификатора */
+.overlay{position:absolute;inset:0;z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;background:radial-gradient(circle at center,rgba(255,62,165,.35),rgba(7,7,28,.96) 60%)}
+.overlay .huge{font-family:'Russo One',sans-serif;font-size:150px;line-height:1;color:#fff;text-shadow:0 0 30px var(--pink),0 0 80px var(--pink);animation:pop .6s}
+.overlay .sub{font-size:30px;color:var(--muted)}
+
+/* лобби и настройки */
+.screen{flex:1;display:flex;flex-direction:column;align-items:center;gap:20px;position:relative;z-index:1;min-height:0}
+.lobby-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;width:100%}
+.lteam{background:var(--panel);border:3px solid var(--c);border-radius:18px;padding:14px;display:flex;flex-direction:column;gap:10px}
+.lteam input{font-family:'Russo One',sans-serif}
+.lteam .colors{display:flex;gap:6px;flex-wrap:wrap}
+.sw{width:24px;height:24px;border-radius:6px;border:2px solid transparent;cursor:pointer}
+.sw.on{border-color:#fff}
+.addteam{border:3px dashed var(--dim);border-radius:18px;background:transparent;color:var(--muted);font-size:22px;cursor:pointer;min-height:150px}
+.settings{display:grid;grid-template-columns:1fr 1fr;gap:18px 36px;width:100%;max-width:1300px;overflow:auto;padding-right:6px}
+.set{background:var(--panel);border-radius:16px;padding:14px 18px}
+.set .lab{font-family:'Russo One',sans-serif;font-size:19px;margin-bottom:10px;display:flex;justify-content:space-between}
+.seg{display:flex;gap:8px;flex-wrap:wrap}
+.seg button{padding:9px 14px;border-radius:10px;border:2px solid #3A3D74;background:transparent;color:#fff;font-size:16px;cursor:pointer}
+.seg button.on{background:var(--cyan);border-color:var(--cyan);color:var(--bg);font-weight:700}
+.seg button:disabled{opacity:.4;cursor:not-allowed}
+input[type=range]{width:100%;accent-color:var(--pink)}
+.warn{background:rgba(255,138,61,.15);border:2px solid var(--orange);border-radius:12px;padding:10px 16px;color:#FFD0B0}
+
+/* последняя ставка */
+.cover{display:flex;flex-direction:column;align-items:center;gap:18px;padding:30px}
+
+/* победитель */
+.podium{display:flex;align-items:flex-end;gap:24px;justify-content:center;margin-top:10px}
+.step{width:260px;display:flex;flex-direction:column;align-items:center;gap:10px;animation:rise .6s both}
+.step .ped{width:100%;border-radius:16px 16px 0 0;display:flex;align-items:flex-start;justify-content:center;padding-top:16px;font-family:'Press Start 2P',monospace;font-size:40px;color:var(--bg)}
+.others{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
+.foot{position:absolute;left:40px;right:40px;bottom:72px;display:flex;justify-content:space-between;align-items:center;z-index:3}
+
+/* лобби в режиме «Телефоны» */
+.lobby-multi{flex:1;display:grid;grid-template-columns:1fr 420px;gap:36px;margin-top:16px;position:relative;z-index:1;min-height:0}
+.lm-left{display:flex;flex-direction:column;gap:18px;align-items:center;min-height:0}
+.lobby-grid.three{grid-template-columns:repeat(3,1fr)}
+.lm-right{display:flex;flex-direction:column;gap:16px}
+.joinbox{background:var(--panel);border:3px solid var(--cyan);border-radius:20px;padding:20px;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;box-shadow:0 0 30px rgba(35,229,219,.35)}
+.hostbox{background:var(--panel);border:2px solid var(--yellow);border-radius:16px;padding:12px 16px;display:flex;align-items:center;gap:16px}
